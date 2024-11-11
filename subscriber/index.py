@@ -1,65 +1,57 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
+# Copyright (c) 2010-2013 Roger Light <roger@atchoo.org>
+#
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Eclipse Distribution License v1.0
+# which accompanies this distribution.
+#
+# The Eclipse Distribution License is available at
+#   http://www.eclipse.org/org/documents/edl-v10.php.
+#
+# Contributors:
+#    Roger Light - initial implementation
+# Copyright (c) 2010,2011 Roger Light <roger@atchoo.org>
+# All rights reserved.
+
+# This shows a simple example of an MQTT subscriber.
 import paho.mqtt.client as mqtt
-import requests
-import json
 
-# Definir a URL da API com os parâmetros fornecidos
-API_URL = "https://api.open-meteo.com/v1/forecast"
-LATITUDE = -5.6344
-LONGITUDE = -35.4256
-PARAMETERS = "temperature_2m,rain"
-TIMEZONE = "America/Fortaleza"
+# Função a ser executada quando o cliente conectar
+def on_connect(mqttc, obj, flags, reason_code, properties):
+    # Definir e implementar o que o cliente deve fazer ao se conectar
+    print("reason_code: " + str(reason_code))
 
-# Função para conectar ao broker MQTT
-def conecta_broker():
-    broker = "mqtt.eclipse.org"  # Exemplo de broker MQTT público
-    client = mqtt.Client("Weather_Subscriber")
-    client.on_connect = on_connect
-    client.on_message = on_message
-    client.connect(broker, 1883, 60)
-    return client
+# Função a ser executada quando o cliente receber uma mensagem
+def on_message(mqttc, obj, msg):
+    # FAZER AGORA
+    # Definir implementar o que o cliente deve fazer ao receber uma mensagem
+    print(msg.topic + " " + str(msg.qos) + " " + str(msg.payload))
 
-# Callback de conexão bem-sucedida ao broker
-def on_connect(client, userdata, flags, rc):
-    print("Conectado ao broker MQTT com código de resultado " + str(rc))
-    # Assinar o tópico de clima
-    client.subscribe("weather/forecast")
+# Função a ser executada quando o cliente fizer uma nova assinatura
+def on_subscribe(mqttc, obj, mid, reason_code_list, properties):
+    # Definir o implementar o que o clinete deve fazer ao assinar um novo tópico
+    print("Subscribed: " + str(mid) + " " + str(reason_code_list))
 
-# Callback de mensagem recebida
-def on_message(client, userdata, msg):
-    print("Mensagem recebida no tópico " + msg.topic + ": " + str(msg.payload.decode("utf-8")))
+# Função a ser executada quando houver log
+def on_log(mqttc, obj, level, string):
+    print(string)
 
-# Função para obter dados da API de clima
-def receber():
-    try:
-        response = requests.get(f"{API_URL}?latitude={LATITUDE}&longitude={LONGITUDE}&hourly={PARAMETERS}&timezone={TIMEZONE}")
-        if response.status_code == 200:
-            data = response.json()
-            return data
-        else:
-            print(f"Erro ao receber dados da API: {response.status_code}")
-            return None
-    except Exception as e:
-        print(f"Exceção ao acessar a API: {e}")
-        return None
+# If you want to use a specific client id, use
+# mqttc = mqtt.Client("client-id")
+# but note that the client id must be unique on the broker. Leaving the client
+# id parameter empty will generate a random id for you.
 
-# Função de loop para verificar dados periodicamente e publicá-los
-def loop(client):
-    while True:
-        dados_clima = receber()
-        if dados_clima:
-            # Extraindo informações de temperatura e chuva
-            temperatura = dados_clima['hourly']['temperature_2m']
-            chuva = dados_clima['hourly']['rain']
-            mensagem = f"Temperatura: {temperatura}, Chuva: {chuva}"
-            # Publicar os dados no tópico de clima
-            client.publish("weather/forecast", mensagem)
-        client.loop()  # Loop para manter a conexão MQTT
+#Cria o MQTT-Cliente
+mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, "sub_teste")
 
-# Função principal
-def main():
-    client = conecta_broker()  # Conectar ao broker MQTT
-    loop(client)  # Iniciar o loop de recebimento e publicação de dados
+mqttc.on_message = on_message
+mqttc.on_connect = on_connect
+mqttc.on_subscribe = on_subscribe
+# Uncomment to enable debug messages
+# mqttc.on_log = on_log
+mqttc.connect("127.0.0.1", 1883, 60)
+mqttc.subscribe("grupo/variavel")
 
-# Executar o código apenas se for o script principal
-if __name__ == "__main__":
-    main()
+mqttc.loop_forever()
