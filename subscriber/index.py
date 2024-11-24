@@ -1,3 +1,5 @@
+# O código cria um cliente MQTT que se conecta a um broker, assina um tópico e exibe mensagens recebidas.
+
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
@@ -15,7 +17,7 @@
 # Copyright (c) 2010,2011 Roger Light <roger@atchoo.org>
 # All rights reserved.
 
-# This shows a simple example of an MQTT subscriber.
+# This shows a simple example of an matt subscriber.
 import paho.mqtt.client as mqtt
 
 # Função a ser executada quando o cliente conectar

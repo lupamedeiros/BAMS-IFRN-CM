@@ -1,3 +1,4 @@
+# Este código cria um cliente MQTT que se conecta a um broker, se inscreve em um tópico e imprime as mensagens recebidas.
 import paho.mqtt.client as mqtt
 
 # Função que será chamada quando o cliente se conectar ao broker
