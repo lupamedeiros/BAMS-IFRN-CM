@@ -20,7 +20,6 @@
 # This shows a simple example of an mqtt subscriber.
 import paho.mqtt.client as mqtt
 import sqlite3
-import json
 
 # Função para inserir dados no banco de dados
 def inserir_dados(dados):
