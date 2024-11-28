@@ -8,57 +8,57 @@ import schedule
 import time
 
 # Função para inserir dados no banco de dados
-def inserir_dados(dados):
-    conn = sqlite3.connect('dados_meteorologicos.db')
+def insert_data(data):
+    conn = sqlite3.connect('weather_data.db')
     cursor = conn.cursor()
     cursor.execute('''
-    CREATE TABLE IF NOT EXISTS dados_meteorologicos (
+    CREATE TABLE IF NOT EXISTS weather_data (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        topico TEXT NOT NULL,
+        topic TEXT NOT NULL,
         latitude REAL NOT NULL,
         longitude REAL NOT NULL,
-        temperatura REAL,
-        chuva REAL,
-        umidade_relativa REAL,
-        temperatura_aparente REAL,
-        is_dia INTEGER,
-        precipitacao REAL,
-        codigo_tempo INTEGER,
-        cobertura_nuvens REAL,
-        pressao_msl REAL,
-        pressao_superficie REAL,
-        velocidade_vento REAL,
-        direcao_vento REAL,
-        rajadas_vento REAL,
+        temperature_2m REAL,
+        rain REAL,
+        relative_humidity_2m REAL,
+        apparent_temperature REAL,
+        is_day INTEGER,
+        precipitation REAL,
+        weather_code INTEGER,
+        cloud_cover REAL,
+        pressure_msl REAL,
+        surface_pressure REAL,
+        wind_speed_10m REAL,
+        wind_direction_10m REAL,
+        wind_gusts_10m REAL,
         timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
     );
     ''')
     cursor.execute('''
-    INSERT INTO dados_meteorologicos (topico, latitude, longitude, temperatura, chuva, umidade_relativa, temperatura_aparente,
-                                      is_dia, precipitacao, codigo_tempo, cobertura_nuvens, pressao_msl, pressao_superficie,
-                                      velocidade_vento, direcao_vento, rajadas_vento)
+    INSERT INTO weather_data (topic, latitude, longitude, temperature_2m, rain, relative_humidity_2m, apparent_temperature,
+                                      is_day, precipitation, weather_code, cloud_cover, pressure_msl, surface_pressure,
+                                      wind_speed_10m, wind_direction_10m, wind_gusts_10m)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ''', (dados['topico'], dados['latitude'], dados['longitude'], dados['temperature_2m'], dados['rain'], dados['relative_humidity_2m'],
-          dados['apparent_temperature'], dados['is_day'], dados['precipitation'], dados['weather_code'], dados['cloud_cover'], 
-          dados['pressure_msl'], dados['surface_pressure'], dados['wind_speed_10m'], dados['wind_direction_10m'], dados['wind_gusts_10m']))
+    ''', (data['topic'], data['latitude'], data['longitude'], data['temperature_2m'], data['rain'], data['relative_humidity_2m'],
+          data['apparent_temperature'], data['is_day'], data['precipitation'], data['weather_code'], data['cloud_cover'], 
+          data['pressure_msl'], data['surface_pressure'], data['wind_speed_10m'], data['wind_direction_10m'], data['wind_gusts_10m']))
     conn.commit()
     conn.close()
 
 # Função a ser executada quando o cliente conectar
 def on_connect(mqttc, userdata, flags, rc):
     print("Connected with result code " + str(rc))
-    mqttc.subscribe("grupo/variavel")
+    mqttc.subscribe("weather/data")
 
 # Função a ser executada quando o cliente receber uma mensagem
 def on_message(mqttc, userdata, msg):
-    topico = msg.topic
+    topic = msg.topic
     payload = msg.payload.decode('utf-8')
-    print(f"Mensagem recebida no tópico {topico}: {payload}")
-    dados = json.loads(payload)
-    dados['topico'] = topico
-    dados['latitude'] = -5.6344
-    dados['longitude'] = -35.4256
-    inserir_dados(dados)
+    print(f"Mensagem recebida no tópico {topic}: {payload}")
+    data = json.loads(payload)
+    data['topic'] = topic
+    data['latitude'] = -5.6344
+    data['longitude'] = -35.4256
+    insert_data(data)
 
 # Função a ser executada quando o cliente fizer uma nova assinatura
 def on_subscribe(mqttc, userdata, mid, granted_qos):
@@ -69,7 +69,7 @@ def on_log(mqttc, userdata, level, buf):
     print(buf)
 
 # Função agendada para verificar dados a cada 15 minutos
-def verificar_dados():
+def check_data():
     print("Verificando dados...")
 
 # Cria o MQTT-Cliente
@@ -81,10 +81,11 @@ mqttc.on_subscribe = on_subscribe
 # Uncomment to enable debug messages
 # mqttc.on_log = on_log
 
-mqttc.connect("127.0.0.1", 1883, 60)
+mqttc.connect("192.168.56.101", 1883, 60)
+mqttc.username_pw_set("mosquitto", "dietpi")
 
 # Agendando a função verificar_dados a cada 15 minutos
-schedule.every(15).minutes.do(verificar_dados)
+schedule.every(15).minutes.do(check_data)
 
 # Loop principal
 while True:
