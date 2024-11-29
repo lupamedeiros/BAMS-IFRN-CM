@@ -2,6 +2,7 @@ import openmeteo_requests
 import requests_cache
 import paho.mqtt.client as mqtt
 from retry_requests import retry
+import json
 
 # Configure o cliente Open-Meteo API com cache e tente novamente em caso de erro
 cache_session = requests_cache.CachedSession('.cache', expire_after=3600)
@@ -65,7 +66,7 @@ weather_data = {
     "latitude": response.Latitude(),
     "longitude": response.Longitude(),
     "elevation": response.Elevation(),
-    "timezone": response.Timezone(),
+    "timezone": response.Timezone().decode("utf-8"),
     "current_time": current.Time(),
     "temperature_2m": current_temperature_2m,
     "relative_humidity_2m": current_relative_humidity_2m,
@@ -81,9 +82,11 @@ weather_data = {
     "wind_direction_10m": current_wind_direction_10m,
     "wind_gusts_10m": current_wind_gusts_10m
 }
+print(weather_data)
+msg = json.dumps(weather_data, indent=4)
 
 # Publica a data MQTT
-mqtt_client.publish(MQTT_TOPIC, str(weather_data), qos=1, retain=False)
+mqtt_client.publish(MQTT_TOPIC, msg, qos=1, retain=False)
 print(f"Weather data published to {MQTT_TOPIC}: {weather_data}")
 
 # Disconecta do broker

@@ -51,7 +51,7 @@ def insert_data(data):
 # Função a ser executada quando o cliente conectar
 def on_connect(mqttc, userdata, flags, rc):
     print("Connected with result code " + str(rc))
-    mqttc.subscribe("weather/data")
+    mqttc.subscribe("weather/ceara_mirim")
 
 # Função a ser executada quando o cliente receber uma mensagem
 def on_message(mqttc, userdata, msg):
@@ -85,8 +85,8 @@ mqttc.on_subscribe = on_subscribe
 # Uncomment to enable debug messages
 # mqttc.on_log = on_log
 
-mqttc.connect("192.168.56.101", 1883, 60)
-mqttc.username_pw_set("mosquitto", "dietpi")
+mqttc.connect("127.0.0.1", 1883, 60)
+#mqttc.username_pw_set("mosquitto", "dietpi")
 
 # Agendando a função verificar_dados a cada 15 minutos
 schedule.every(15).minutes.do(check_data)
