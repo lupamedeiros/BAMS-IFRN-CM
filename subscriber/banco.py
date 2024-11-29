@@ -4,6 +4,9 @@
 import sqlite3
 import paho.mqtt.client as mqtt
 
+MQTT_TOPIC = "weather/data"  #tópico que o cliente ira assinar
+
+
 # Função para inserir dados no banco de dados
 def insert_data(topic, time, temperature_2m, rain, relative_humidity_2m, apparent_temperature, is_day, precipitation, weather_code, cloud_cover, pressure_msl, surface_pressure, wind_speed_10m, wind_direction_10m, wind_gusts_10m):
     conn = sqlite3.connect('weather_data.db')

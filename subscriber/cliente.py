@@ -9,8 +9,10 @@ import time
 
 # Função para inserir dados no banco de dados
 def insert_data(data):
-    conn = sqlite3.connect('weather_data.db')
+    conn = sqlite3.connect('my.db')
     cursor = conn.cursor()
+
+    #criando a tabela
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS weather_data (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -33,6 +35,8 @@ def insert_data(data):
         timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
     );
     ''')
+
+    #inserindo os dados na tabela 'wheater.data'
     cursor.execute('''
     INSERT INTO weather_data (topic, latitude, longitude, temperature_2m, rain, relative_humidity_2m, apparent_temperature,
                                       is_day, precipitation, weather_code, cloud_cover, pressure_msl, surface_pressure,
