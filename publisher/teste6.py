@@ -48,7 +48,7 @@ def main():
     params = {
         "latitude": -5.6344,
         "longitude": -35.4256,
-        "current_weather": True,
+        "current":  ["temperature_2m", "relative_humidity_2m", "apparent_temperature", "is_day", "precipitation", "rain", "weather_code", "cloud_cover", "pressure_msl", "surface_pressure", "wind_speed_10m", "wind_direction_10m", "wind_gusts_10m"],
         "timezone": "America/Fortaleza"
     }
 
@@ -75,6 +75,7 @@ def main():
             "wind_gusts_10m": current_weather.get("windgusts")
         }
 
+        print(f"Dados Brutos: {weather_data}\n\n")
         print(f"Dados do Clima: {weather_info}")
 
         # Inicializa o cliente MQTT e conecta ao broker
